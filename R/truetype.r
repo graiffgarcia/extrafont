@@ -9,10 +9,12 @@
 #' @param paths A vector of directories to search in. (Default is to auto-detect based on OS)
 #' @param recursive Search recursively in directories? (Default TRUE)
 #' @param pattern A regular expression that the filenames must match.
+#' @param silent Whether the message that "(font) is already registered" will be printed. (Default TRUE)
 #'
 #' @importFrom Rttf2pt1 which_ttf2pt1
 #' @export
-ttf_import <- function(paths = NULL, recursive = TRUE, pattern = NULL) {
+ttf_import <- function(paths = NULL, recursive = TRUE, pattern = NULL,
+                       silent = TRUE) {
 
   if (is.null(paths))  paths <- ttf_find_default_path()
 
@@ -28,7 +30,7 @@ ttf_import <- function(paths = NULL, recursive = TRUE, pattern = NULL) {
   # This message really belongs in ttf_scan_files, but the pathnames
   # are lost by that point...
   message("Scanning ttf files in ", paste(paths, collapse=", "), " ...")
-  fontmap <- ttf_extract(ttfiles)
+  fontmap <- ttf_extract(ttfiles, silent = silent)
 
   # Drop fonts with no name
   fontmap <- fontmap[!is.na(fontmap$FontName), ]
@@ -52,7 +54,7 @@ ttf_import <- function(paths = NULL, recursive = TRUE, pattern = NULL) {
 
 # Extract .afm  files from TrueType fonts.
 # Returns mapping between .ttf file name and FontName
-ttf_extract <- function(ttfiles) {
+ttf_extract <- function(ttfiles, silent = TRUE) {
   message("Extracting .afm files from .ttf files...")
 
   # This stores information about the fonts
@@ -76,7 +78,9 @@ ttf_extract <- function(ttfiles) {
   else                                 args <- c("-a", "-GfAe")
 
   for (i in seq_along(ttfiles)) {
-    message(ttfiles[i], appendLF = FALSE)
+    if (!silent){
+      message(ttfiles[i], appendLF = FALSE)
+    }
 
     # This runs:
     #  ttf2pt1 -GfAe /Library/Fonts/Impact.ttf /out/path/Impact
@@ -95,15 +99,23 @@ ttf_extract <- function(ttfiles) {
     }
 
     if (fontname == "" || fontname == "Unknown") {
+      if (silent){
+        message(ttfiles[i], appendLF = FALSE)
+      }
       fontdata$FontName[i] <- NA
       message(" : No FontName. Skipping.")
 
     } else if (fontname %in% fonttable()$FontName) {
       fontdata$FontName[i] <- NA
-      # message(" : ", fontname,
-      #         " already registered in fonts database. Skipping.")
+      if (!silent){
+        message(" : ", fontname,
+                " already registered in fonts database. Skipping.")
+      }
 
     } else {
+      if (silent){
+        message(ttfiles[i], appendLF = FALSE)
+      }
       fontdata$FontName[i] <- fontname
       gzcopy_exclude(paste(tmpfiles[i], ".afm", sep=""),
              paste(outfiles[i], ".afm.gz", sep=""),

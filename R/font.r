@@ -6,13 +6,14 @@
 #' @param recursive Search recursively in directories? (Default TRUE)
 #' @param prompt Show confirmation prompt? (Default TRUE)
 #' @param pattern A regular expression that the filenames must match.
+#' @param silent Whether the message that "(font) is already registered" will be printed. (Default TRUE)
 #'
 #' @examples
 #' font_import()
 #'
 #' @export
 font_import <- function(paths = NULL, recursive = TRUE, prompt = TRUE,
-                 pattern = NULL) {
+                 pattern = NULL, silent = TRUE) {
 
   if (prompt) {
     resp <- readline("Importing fonts may take a few minutes, depending on the number of fonts and the speed of the system.\nContinue? [y/n] ")
@@ -22,7 +23,8 @@ font_import <- function(paths = NULL, recursive = TRUE, prompt = TRUE,
     }
   }
 
-  ttf_import(paths, recursive, pattern)
+  ttf_import(paths = paths, recursive = recursive,
+             pattern = pattern, silent = silent)
 }
 
 
