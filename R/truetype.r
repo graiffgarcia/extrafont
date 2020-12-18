@@ -56,7 +56,7 @@ ttf_extract <- function(ttfiles) {
   message("Extracting .afm files from .ttf files...")
 
   # This stores information about the fonts
-  fontdata <- data.frame(fontfile = ttfiles, FontName = "", 
+  fontdata <- data.frame(fontfile = ttfiles, FontName = "",
                          stringsAsFactors = FALSE)
 
   outfiles <- file.path(metrics_path(),
@@ -100,7 +100,8 @@ ttf_extract <- function(ttfiles) {
 
     } else if (fontname %in% fonttable()$FontName) {
       fontdata$FontName[i] <- NA
-      message(" : ", fontname, " already registered in fonts database. Skipping.")
+      # message(" : ", fontname,
+      #         " already registered in fonts database. Skipping.")
 
     } else {
       fontdata$FontName[i] <- fontname
